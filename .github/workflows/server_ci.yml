@@ -1,0 +1,43 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        mongodb-version: ['4.4']
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: npm cache for faster execution
+        uses: c-hive/gha-npm-cache@v1
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: installing node modules
+        run: |
+          npm i -f || npm i -f || npm i -f
+          npm i prettier prettier-eslint eslint-config-prettier eslint-plugin-prettier eslint eslint-plugin-node eslint-plugin-security
+
+
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.6.0
+        with:
+          mongodb-version: ${{ matrix.mongodb-version }}
+          mongodb-port: 27017
+
+      - name: running test
+        run: npm run test
